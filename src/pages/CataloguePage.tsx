@@ -34,6 +34,14 @@ export const CataloguePage = () => {
   const [genre, setGenre] = useState("");
 
   // TODO : écrire le useQuery ici
+  const { data: movies, isLoading, isError } = useQuery<Movie[]>({
+    queryKey: ["movies", search, genre],
+    queryFn: async () => {
+      const url = `/movies?search=${search}&genre=${genre}`;
+      const response = await api.get(url); 
+      return response as Movie[]; 
+    }
+  });
 
   return (
     <div>
@@ -41,6 +49,25 @@ export const CataloguePage = () => {
       <SearchBar onSearch={setSearch} onGenreChange={setGenre} />
 
       {/* TODO : afficher loading, error, et la liste de films */}
+      {isLoading && (
+        <div className="mt-8 text-center text-gray-500">
+          Chargement des films...
+        </div>
+      )}
+
+      {isError && (
+        <div className="mt-8 text-center text-red-500">
+          Une erreur est survenue lors du chargement des films.
+        </div>
+      )}
+
+      {!isLoading && !isError && movies && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+          {movies.map((movie: Movie) => (
+            <MovieCard key={movie.id} movie={movie} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

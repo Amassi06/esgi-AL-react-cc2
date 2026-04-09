@@ -37,5 +37,30 @@ import type { Movie } from "../types/movie";
 //
 
 export const MovieDetailPage = () => {
-  return <div>TODO : compléter cette page</div>;
+  const { id } = useParams();
+  const { data: movie, isLoading, isError } = useQuery<Movie>({
+    queryKey: ["movie", id],
+    queryFn: () => api.get(`/movies/${id}`),
+  });
+
+
+  if (isLoading) return <div className="text-center mt-8">Chargement du film...</div>;
+  if (isError || !movie) return <div className="text-center mt-8 text-red-500">Erreur lors du chargement.</div>;
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <img 
+        src={movie.imageUrl} 
+        alt={movie.title} 
+        className="w-full h-64 object-cover rounded-lg" 
+      />
+      
+      <h1 className="text-3xl font-bold mt-4">{movie.title}</h1>
+      
+      <p className="text-gray-600 mt-1">
+        {movie.director} • {movie.year} • {movie.genre}
+      </p>
+      <p className="text-gray-700 mt-4">{movie.description}</p>
+    </div>
+  );
 };
